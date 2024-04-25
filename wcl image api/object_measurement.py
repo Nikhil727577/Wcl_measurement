@@ -13,7 +13,7 @@ custom_weights_path = 'last 1.pt'
 image_path = "images/"
 conf_thres = 0.25
 
-@app.post("/upload/")
+@app.post("/upload")
 # Function to load custom YOLOv5 model and perform object detection
 async def detect_objects(image: UploadFile = File(...)):
     # Load your custom YOLOv5 model

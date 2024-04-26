@@ -13,6 +13,7 @@ custom_weights_path = 'last 1.pt'
 image_path = "images/"
 conf_thres = 0.25
 
+
 @app.post("/upload")
 # Function to load custom YOLOv5 model and perform object detection
 async def detect_objects(image: UploadFile = File(...)):
@@ -41,6 +42,9 @@ async def detect_objects(image: UploadFile = File(...)):
     # Convert PIL image to OpenCV format (numpy array)
     img_np = np.array(img)
 
+    # List to store heights and widths for this image
+    image_data = []
+
     # Loop through the detected objects
     for bbox in bboxes:
         x1, y1, x2, y2, conf, class_id = bbox
@@ -61,15 +65,21 @@ async def detect_objects(image: UploadFile = File(...)):
         label = labels[int(class_id)]
         cv2.putText(img_np, label, (x1, y2 + 20),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+
+        # Append width and height to the list for this image
+        image_data.append({"width": width, "height": height})
+
     annotated_folder = "annotated_images/"
     # Save the annotated image with detections
-    annotated_image_path = annotated_folder+  "annotated_" + image.filename
+    annotated_image_path = annotated_folder + "annotated_" + image.filename
     cv2.imwrite(annotated_image_path, cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR))
-    # annotated_image_path = detect_objects(annotated_image_path, custom_weights_path)
-    # img = cv2.imread(annotated_image_path)
-    # return annotated_image_path
-    
-    return JSONResponse(content={"width": str(width)+" cm", "height": str(height)+" cm"})
+
+    if not image_data:
+        return JSONResponse(content={"error": "No wall detected"})
+    else:
+        return JSONResponse(content={"image_data": image_data})
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8002)
+

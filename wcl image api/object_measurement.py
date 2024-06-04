@@ -51,8 +51,8 @@ async def detect_objects(image: UploadFile = File(...)):
         x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
 
         # Calculate the width and height of the bounding box
-        width = x2 - x1
-        height = y2 - y1
+        width = (x2 - x1)
+        height = (y2 - y1)
 
         # Draw bounding box
         cv2.rectangle(img_np, (x1, y1), (x2, y2), (0, 255, 0), 2)
@@ -67,7 +67,7 @@ async def detect_objects(image: UploadFile = File(...)):
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
 
         # Append width and height to the list for this image
-        image_data.append({"width": width, "height": height})
+        image_data.append({"width": str(width/30.48)+ " feet" , "height":str(height/30.48)+ " feet" })
 
     annotated_folder = "annotated_images/"
     # Save the annotated image with detections

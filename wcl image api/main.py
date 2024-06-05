@@ -9,11 +9,11 @@ import uvicorn
 
 app = FastAPI()
 
-custom_weights_path = 'last 1.pt'
+custom_weights_path = 'last.pt'
 image_path = "images/"
 conf_thres = 0.25
 
-@app.post("/upload")
+@app.post("/detect/")
 async def detect_objects(image: UploadFile = File(...)):
     # Load the custom YOLOv5 model
     model = torch.hub.load("ultralytics/yolov5", "custom", path=custom_weights_path)
@@ -98,9 +98,9 @@ async def detect_objects(image: UploadFile = File(...)):
     response = {"wall_data": wall_data}
 
     if logo_detected:
-        response["logo"] = {"status": "logo detected", "confidence": f"{logo_confidence:.2f}"}
+        response["Wcl_logo"] = {"status": "logo detected", "confidence": f"{logo_confidence:.2f}"}
     else:
-        response["logo"] = {"status": "no logo detected"}
+        response["Wcl_logo"] = {"status": "no logo detected"}
 
     if rkgroup_detected:
         response["rkgroup"] = {"status": "rkgroup detected", "confidence": f"{rkgroup_confidence:.2f}"}

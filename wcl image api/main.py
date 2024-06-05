@@ -69,10 +69,12 @@ async def detect_objects(image: UploadFile = File(...)):
             cv2.putText(img_np, f'Label: {label}, Conf: {conf:.2f}', (x1, y1 - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
             # Append width, height, and confidence score to the list for walls
+            feet="feet"
             wall_data.append({
-                "width": f"{width / 30.48:.2f} feet",
-                "height": f"{height / 30.48:.2f} feet",
+                "width": f"{width / 30.48:.2f} ",
+                "height": f"{height / 30.48:.2f}",
                 # "confidence": f"{conf:.2f}"
+                "unit": f"{feet}"
             })
 
         # Check if the detected object is a logo

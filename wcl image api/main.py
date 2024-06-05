@@ -72,7 +72,7 @@ async def detect_objects(image: UploadFile = File(...)):
             wall_data.append({
                 "width": f"{width / 30.48:.2f} feet",
                 "height": f"{height / 30.48:.2f} feet",
-                "confidence": f"{conf:.2f}"
+                # "confidence": f"{conf:.2f}"
             })
 
         # Check if the detected object is a logo

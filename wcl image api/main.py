@@ -98,16 +98,19 @@ async def detect_objects(image: UploadFile = File(...)):
 
     # Prepare the JSON response
     response = {"wall_data": wall_data}
-
-    if logo_detected:
-        response["Wcl_logo"] = {"status": "logo detected", "confidence": f"{logo_confidence:.2f}"}
-    else:
-        response["Wcl_logo"] = {"status": "no logo detected"}
-
     if rkgroup_detected:
-        response["rkgroup"] = {"status": "rkgroup detected", "confidence": f"{rkgroup_confidence:.2f}"}
+        if logo_detected:
+            response["Wcl_logo"] = {"status": "logo detected", "confidence": f"{logo_confidence:.2f}"}
+        else:
+            response["Wcl_logo"] = {"status": "no logo detected"}
+
+        if rkgroup_detected:
+            response["rkgroup"] = {"status": "rkgroup detected", "confidence": f"{rkgroup_confidence:.2f}"}
+        else:
+            response["rkgroup"] = {"status": "no rkgroup detected"}
     else:
-        response["rkgroup"] = {"status": "no rkgroup detected"}
+        response["wall_data"] = "Not wcl wall"
+
 
     # Return JSON response with wall dimensions and logo/rkgroup detection status
     if not wall_data:

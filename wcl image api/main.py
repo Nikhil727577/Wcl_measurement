@@ -10,8 +10,13 @@ import uvicorn
 app = FastAPI()
 
 custom_weights_path = 'last.pt'
-image_path = "images/"
 conf_thres = 0.25
+
+# Create folders to save images if they don't exist
+original_image_folder = "original_images/"
+annotated_image_folder = "annotated_images/"
+os.makedirs(original_image_folder, exist_ok=True)
+os.makedirs(annotated_image_folder, exist_ok=True)
 
 @app.post("/detect/")
 async def detect_objects(image: UploadFile = File(...)):
@@ -20,6 +25,11 @@ async def detect_objects(image: UploadFile = File(...)):
 
     # Read image as bytes
     contents = await image.read()
+
+    # Save the original image
+    original_image_path = os.path.join(original_image_folder, image.filename)
+    with open(original_image_path, "wb") as f:
+        f.write(contents)
 
     # Convert bytes to numpy array
     nparr = np.frombuffer(contents, np.uint8)
@@ -69,12 +79,11 @@ async def detect_objects(image: UploadFile = File(...)):
             cv2.putText(img_np, f'Label: {label}, Conf: {conf:.2f}', (x1, y1 - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
             # Append width, height, and confidence score to the list for walls
-            feet="feet"
+            feet = "feet"
             wall_data.append({
-                "width": f"{width / 30.48:.2f} ",
+                "width": f"{width / 30.48:.2f}",
                 "height": f"{height / 30.48:.2f}",
-                # "confidence": f"{conf:.2f}"
-                "unit": f"{feet}"
+                "unit": feet
             })
 
         # Check if the detected object is a logo
@@ -87,13 +96,8 @@ async def detect_objects(image: UploadFile = File(...)):
             rkgroup_detected = True
             rkgroup_confidence = conf
 
-    # Define folder to save annotated images
-    annotated_folder = "annotated_images/"
-    if not os.path.exists(annotated_folder):
-        os.makedirs(annotated_folder)
-
     # Save the annotated image with detections
-    annotated_image_path = os.path.join(annotated_folder, f"annotated_{image.filename}")
+    annotated_image_path = os.path.join(annotated_image_folder, f"annotated_{image.filename}")
     cv2.imwrite(annotated_image_path, cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR))
 
     # Prepare the JSON response
@@ -111,7 +115,6 @@ async def detect_objects(image: UploadFile = File(...)):
     else:
         response["wall_data"] = "Not wcl wall"
 
-
     # Return JSON response with wall dimensions and logo/rkgroup detection status
     if not wall_data:
         response["wall_data"] = "No wall detected"
@@ -120,3 +123,4 @@ async def detect_objects(image: UploadFile = File(...)):
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8002)
+
